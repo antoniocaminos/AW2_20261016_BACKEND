@@ -1,0 +1,161 @@
+[
+  {
+    "id": 2,
+    "nombre": "Ana Martínez",
+    "edad": 32,
+    "ocupacion": "Arquitecta",
+    "ciudad_natal": "Buenos Aires, Argentina",
+    "direccion": "Av. Corrientes 1234, Piso 5, CABA",
+    "email": "ana.martinez@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "id": 3,
+    "nombre": "Julián Fernández",
+    "edad": 28,
+    "ocupacion": "Desarrollador Full Stack",
+    "ciudad_natal": "Córdoba, Argentina",
+    "direccion": "San Martín 456, Nueva Córdoba",
+    "email": "julian.fernandez@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "id": 4,
+    "nombre": "Lucía Torres",
+    "edad": 45,
+    "ocupacion": "Médica Cardióloga",
+    "ciudad_natal": "Rosario, Santa Fe",
+    "direccion": "Blvd. Oroño 789, Rosario",
+    "email": "lucia.torres@email.com"
+  },
+  {
+    "id": 5,
+    "nombre": "Marcos Rodríguez",
+    "edad": 37,
+    "ocupacion": "Abogado Laboral",
+    "ciudad_natal": "Mendoza, Argentina",
+    "direccion": "Av. San Martín 234, Ciudad de Mendoza",
+    "email": "marcos.rodriguez@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "id": 6,
+    "nombre": "Valentina Gómez",
+    "edad": 26,
+    "ocupacion": "Diseñadora UX/UI",
+    "ciudad_natal": "La Plata, Buenos Aires",
+    "direccion": "Calle 12 N° 789, La Plata",
+    "email": "valentina.gomez@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "id": 8,
+    "nombre": "Martín Díaz",
+    "edad": 52,
+    "ocupacion": "Ingeniero Civil",
+    "ciudad_natal": "Salta, Argentina",
+    "direccion": "Av. Belgrano 567, Salta Capital",
+    "email": "martin.diaz@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "id": 9,
+    "nombre": "Camila Morales",
+    "edad": 31,
+    "ocupacion": "Psicóloga Clínica",
+    "ciudad_natal": "Montevideo, Uruguay",
+    "direccion": "Rambla Sur 1234, Montevideo",
+    "email": "camila.morales@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "id": 10,
+    "nombre": "Diego Ramírez",
+    "edad": 41,
+    "ocupacion": "Contador Público",
+    "ciudad_natal": "Santiago, Chile",
+    "direccion": "Av. Providencia 3456, Santiago",
+    "email": "diego.ramirez@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "id": 11,
+    "nombre": "Florencia Castro",
+    "edad": 29,
+    "ocupacion": "Periodista Deportiva",
+    "ciudad_natal": "Neuquén, Argentina",
+    "direccion": "Av. Argentina 789, Neuquén Capital",
+    "email": "florencia.castro@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "id": 12,
+    "nombre": "Mateo Sánchez",
+    "edad": 35,
+    "ocupacion": "Chef Ejecutivo",
+    "ciudad_natal": "Lima, Perú",
+    "direccion": "Calle de las Pizzas 456, Miraflores",
+    "email": "mateo.sanchez@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "id": 13,
+    "nombre": "Ignacio Romero",
+    "edad": 47,
+    "ocupacion": "Empresario Tecnológico",
+    "ciudad_natal": "Bogotá, Colombia",
+    "direccion": "Calle 85 #12-34, Bogotá DC",
+    "email": "ignacio.romero@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "id": 14,
+    "nombre": "Paula Méndez",
+    "edad": 33,
+    "ocupacion": "Profesora Universitaria",
+    "ciudad_natal": "Tucumán, Argentina",
+    "direccion": "Av. Independencia 234, San Miguel de Tucumán",
+    "email": "paula.mendez@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "id": 15,
+    "nombre": "Tomás Navarro",
+    "edad": 39,
+    "ocupacion": "Arquitecto de Software",
+    "ciudad_natal": "Valparaíso, Chile",
+    "direccion": "Cerro Alegre 567, Valparaíso",
+    "email": "tomas.navarro@email.com",
+    "pass": "contrasenia1234"
+  },
+  {
+    "nombre": "Carola Animales",
+    "edad": 30,
+    "ocupacion": "Diseñadora Gráfica",
+    "ciudad_natal": "Quito, Ecuador",
+    "direccion": "Av. Amazonas 1234, Quito",
+    "email": "carolina.perez@email.com",
+    "pass": "contrasenia1234",
+    "id": 18
+  },
+  {
+    "id": 19,
+    "nombre": "Marcelo Conocelo",
+    "email": "macerlo@email.com",
+    "pass": "11111111",
+    "edad": 66,
+    "ocupacion": "jefe de space station",
+    "ciudad_natal": "La Pampa",
+    "direccion": "carlos paz123"
+  },
+  {
+    "id": 20,
+    "nombre": "Patricio  Rey",
+    "edad": 70,
+    "ocupacion": "Diseñadora Gráfica",
+    "ciudad_natal": "Panama, Paper",
+    "direccion": "Av. Siempreviva 1",
+    "email": "indio@email.com",
+    "pass": "contrasenia1234"
+  }
+]

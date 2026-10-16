@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Multi repo · Semana 3 — API Usuarios</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    body {
+      background: #f8f9fa;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      scroll-behavior: smooth;
+    }
+    .hero {
+      background: linear-gradient(135deg, #6610f2 0%, #0d6efd 100%);
+      color: #fff;
+      padding: 3.5rem 1rem 3rem;
+      border-radius: 0 0 1.5rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 20% 80%, rgba(255,255,255,.15), transparent 40%);
+      pointer-events: none;
+    }
+    .hero h1 { font-weight: 700; }
+    .hero .badge-week {
+      background: rgba(255,255,255,.2);
+      padding: .4rem 1rem;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 500;
+    }
+    .card-folder {
+      border-left: 5px solid #0d6efd;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card-folder:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+    }
+    .card-folder.warn { border-left-color: #ffc107; }
+    .card-folder.ok   { border-left-color: #198754; }
+    .card-folder.err  { border-left-color: #dc3545; }
+    .card-folder.purple { border-left-color: #6610f2; }
+    .tree {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1.25rem 1.5rem;
+      border-radius: .75rem;
+      font-family: "Fira Code", Consolas, monospace;
+      font-size: .88rem;
+      line-height: 1.65;
+      overflow-x: auto;
+    }
+    .tree .folder  { color: #4fc3f7; }
+    .tree .file    { color: #ffcc80; }
+    .tree .comment { color: #6a9955; }
+    .tree .new     { color: #ff8a80; font-weight: 600; }
+    .tree .removed { color: #6c757d; text-decoration: line-through; }
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem; height: 2rem;
+      border-radius: 50%;
+      background: #6610f2;
+      color: #fff;
+      font-weight: 700;
+      margin-right: .5rem;
+      flex-shrink: 0;
+    }
+    .flow-step {
+      padding: .65rem 1rem;
+      border-radius: .5rem;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      font-size: .9rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .flow-arrow {
+      color: #6610f2;
+      font-size: 1.4rem;
+      align-self: center;
+    }
+    .code-block {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border-radius: .75rem;
+      padding: 1rem 1.25rem;
+      font-family: "Fira Code", Consolas, monospace;
+      font-size: .82rem;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .code-block .kw { color: #569cd6; }
+    .code-block .st { color: #ce9178; }
+    .code-block .cm { color: #6a9955; }
+    .code-block .fn { color: #dcdcaa; }
+    .code-block .vr { color: #9cdcfe; }
+    .code-block .rm { color: #6c757d; text-decoration: line-through; }
+    .analogy-card {
+      background: linear-gradient(135deg, #f3e5f5 0%, #fff 100%);
+      border-left: 5px solid #6610f2;
+      border-radius: .75rem;
+      padding: 1.25rem;
+    }
+    .analogy-card .emoji {
+      font-size: 2rem;
+      margin-right: .5rem;
+    }
+    .pill {
+      display: inline-block;
+      padding: .2rem .7rem;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+    .pill-blue   { background: #e3f2fd; color: #0d47a1; }
+    .pill-green  { background: #e8f5e9; color: #1b5e20; }
+    .pill-orange { background: #fff3e0; color: #e65100; }
+    .pill-red    { background: #ffebee; color: #b71c1c; }
+    .pill-purple { background: #f3e5f5; color: #4a148c; }
+    .pill-gray   { background: #eceff1; color: #37474f; }
+    .sidenav {
+      position: sticky;
+      top: 1rem;
+      background: #fff;
+      border-radius: .75rem;
+      padding: 1rem;
+      box-shadow: 0 .25rem .75rem rgba(0,0,0,.05);
+    }
+    .sidenav a {
+      display: block;
+      padding: .35rem .75rem;
+      border-radius: .4rem;
+      color: #495057;
+      text-decoration: none;
+      font-size: .88rem;
+      transition: background .15s;
+    }
+    .sidenav a:hover {
+      background: #f1f3f5;
+      color: #6610f2;
+    }
+    section { scroll-margin-top: 1rem; }
+    footer {
+      background: #212529;
+      color: #adb5bd;
+      padding: 2rem 0;
+      margin-top: 4rem;
+    }
+    .diff-box {
+      border: 2px dashed #dee2e6;
+      border-radius: .75rem;
+      padding: 1rem;
+      background: #fff;
+    }
+    .diff-box .label {
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: .4rem;
+    }
+    .diff-box .before .label { color: #dc3545; }
+    .diff-box .after  .label { color: #198754; }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <header class="hero text-center">
+    <span class="badge-week mb-3 d-inline-block">Semana 3 · AW2</span>
+    <h1 class="display-5 mb-2">🧩 Multi repo, ahora sí</h1>
+    <p class="lead mb-0">Separamos front y back. CORS se vuelve obligatorio. El proyecto crece.</p>
+  </header>
+
+  <main class="container my-5">
+    <div class="row g-4">
+
+      <!-- SIDEBAR -->
+      <div class="col-lg-3 d-none d-lg-block">
+        <nav class="sidenav">
+          <p class="fw-bold small text-uppercase text-muted mb-2">En esta clase</p>
+          <a href="#resumen"><i class="bi bi-flag me-1"></i>De dónde venimos</a>
+          <a href="#idea"><i class="bi bi-lightbulb me-1"></i>La idea central</a>
+          <a href="#estructura"><i class="bi bi-diagram-3 me-1"></i>Estructura nueva</a>
+          <a href="#cambios-back"><i class="bi bi-server me-1"></i>Cambios en el backend</a>
+          <a href="#cambios-front"><i class="bi bi-window me-1"></i>Cambios en el frontend</a>
+          <a href="#cors-obligatorio"><i class="bi bi-shield-lock me-1"></i>CORS obligatorio</a>
+          <a href="#file-protocol"><i class="bi bi-file-earmark-x me-1"></i>El error de file://</a>
+          <a href="#mono-vs-multi"><i class="bi bi-box-seam me-1"></i>Mono vs Multi repo</a>
+          <a href="#casos-uso"><i class="bi bi-briefcase me-1"></i>Casos de uso reales</a>
+          <a href="#takeaways"><i class="bi bi-lightbulb me-1"></i>Para llevar</a>
+          <a href="#proximo"><i class="bi bi-rocket-takeoff me-1"></i>Próxima semana</a>
+        </nav>
+      </div>
+
+      <!-- CONTENIDO -->
+      <div class="col-lg-9">
+
+        <!-- RESUMEN -->
+        <section id="resumen" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-flag"></i> De dónde venimos</h2>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="card card-folder h-100 shadow-sm">
+                <div class="card-body">
+                  <h6 class="text-muted small text-uppercase mb-2">Semana 1</h6>
+                  <h5>Backend puro</h5>
+                  <p class="mb-0 small">
+                    API REST con Express. Probada con <strong>Postman</strong>.
+                    Sin frontend.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card card-folder ok h-100 shadow-sm">
+                <div class="card-body">
+                  <h6 class="text-muted small text-uppercase mb-2">Semana 2</h6>
+                  <h5>Monorepo</h5>
+                  <p class="mb-0 small">
+                    Front <strong>dentro</strong> del back, en <code>public/</code>.
+                    Express servía HTML, CSS y JS.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card card-folder purple h-100 shadow-sm">
+                <div class="card-body">
+                  <h6 class="text-muted small text-uppercase mb-2">Semana 3 (hoy)</h6>
+                  <h5>Multi repo</h5>
+                  <p class="mb-0 small">
+                    Front <strong>afuera</strong>, en su propio repo. Cada uno
+                    levanta por su lado. Aparece el <code>file://</code>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- IDEA CENTRAL -->
+        <section id="idea" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-lightbulb"></i> La idea central de hoy</h2>
+          <p>
+            Hasta ahora teníamos un <strong>monolito simpático</strong>: todo
+            vivía adentro del mismo proyecto. El backend servía el frontend con
+            una línea de código:
+          </p>
+
+          <div class="code-block mb-3">
+<span class="vr">app</span>.<span class="fn">use</span>(<span class="fn">express</span>.<span class="fn">static</span>(<span class="st">'public'</span>));
+<span class="cm">// El backend le decía al navegador: "acá tenés los HTML, CSS y JS"</span></div>
+
+          <p>
+            Hoy <strong>rompemos ese matrimonio</strong>. El backend ya no sabe
+            nada del frontend. El frontend vive en <strong>otra carpeta</strong>,
+            en otro puerto, en otro repo. Y para hablarle al backend, va a
+            <strong>pedirle datos por HTTP</strong>, con una URL explícita.
+          </p>
+
+          <div class="analogy-card mb-0">
+            <span class="emoji">🍽️</span>
+            <strong>Analogía:</strong> hasta ahora tenías un
+            <strong>food truck</strong> que cocinaba y vendía en el mismo lugar.
+            Ahora tenés la <strong>cocina</strong> en un local y el
+            <strong>salón</strong> en otro. Los dos siguen siendo el mismo
+            restaurante, pero se organizan distinto. Al mozo (el
+            <code>fetch</code>) le tenés que dar la <strong>dirección completa</strong>
+            de la cocina, no alcanza con decirle "ahí al lado".
+          </div>
+        </section>
+
+        <!-- ESTRUCTURA -->
+        <section id="estructura" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-diagram-3"></i> Estructura nueva: dos repos</h2>
+          <p>
+            Antes tenías <strong>una carpeta</strong>. Ahora tenés
+            <strong>dos</strong>, hermanas, cada una con su vida propia:
+          </p>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="card card-folder h-100 shadow-sm">
+                <div class="card-body">
+                  <h6><i class="bi bi-server me-1"></i> AW2-backend/</h6>
+                  <pre class="tree mb-0" style="font-size:.78rem">AW2-backend/
+├── controllers/
+│   └── usuarios.controller.js
+├── data/
+│   └── usuarios.json
+├── middlewares/
+│   └── logger.middleware.js
+├── routes/
+│   └── usuarios.routes.js
+├── index.js          ← solo API
+├── package.json
+├── .env              ← PORT=3000
+└── .gitignore</pre>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card card-folder purple h-100 shadow-sm">
+                <div class="card-body">
+                  <h6><i class="bi bi-window me-1"></i> AW2-frontend/</h6>
+                  <pre class="tree mb-0" style="font-size:.78rem">AW2-frontend/
+├── login.html
+├── dashboard.html
+├── css/
+│   └── styles.css
+└── js/
+    ├── api.js        ← URL fija al back
+    ├── login.js
+    └── dashboard.js</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h5 class="mb-2">Antes vs Ahora</h5>
+          <pre class="tree mb-0">
+<span class="cm">// ANTES — un solo repo (monolito)</span>
+AW2_20261009/
+├── controllers/
+├── data/
+├── middlewares/
+├── <span class="removed">public/</span>              <span class="comment">// front adentro del back</span>
+│   ├── login.html
+│   └── js/
+├── routes/
+└── index.js
+
+<span class="cm">// AHORA — dos repos separados</span>
+<span class="folder">AW2-backend/</span>          <span class="folder">AW2-frontend/</span>
+├── controllers/        ├── login.html
+├── data/               ├── dashboard.html
+├── middlewares/        ├── css/
+├── routes/             └── js/
+└── index.js
+          </pre>
+        </section>
+
+        <!-- CAMBIOS BACKEND -->
+        <section id="cambios-back" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-server"></i> Cambios en el backend</h2>
+          <p>
+            El backend cambió <strong>muy poco</strong>. Solo sacamos lo que
+            servía al front.
+          </p>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="diff-box before">
+                <div class="label">❌ Antes</div>
+                <pre class="tree mb-0" style="font-size:.78rem">
+import <span class="folder">path</span> from <span class="st">'path'</span>;
+import { <span class="folder">fileURLToPath</span> } from <span class="st">'url'</span>;
+<span class="kw">const</span> __dirname = ...;
+
+app.<span class="fn">use</span>(<span class="fn">express</span>.<span class="fn">static</span>(
+  <span class="fn">path</span>.<span class="fn">join</span>(__dirname, <span class="st">'public'</span>)
+));
+
+app.<span class="fn">get</span>(<span class="st">'/'</span>, (req, res) =>
+  res.<span class="fn">redirect</span>(<span class="st">'/login.html'</span>)
+);</pre>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="diff-box after">
+                <div class="label">✅ Ahora</div>
+                <pre class="tree mb-0" style="font-size:.78rem">
+<span class="cm">// (no hace falta path ni url)</span>
+
+<span class="cm">// (no servimos public)</span>
+
+app.<span class="fn">get</span>(<span class="st">'/'</span>, (req, res) => {
+  res.<span class="fn">json</span>({
+    ok: <span class="kw">true</span>,
+    mensaje: <span class="st">'API Usuarios activa'</span>,
+    endpoints: [...]
+  });
+});</pre>
+              </div>
+            </div>
+          </div>
+
+          <h5 class="mb-2">Los 3 cambios puntuales</h5>
+          <ol class="list-group list-group-numbered shadow-sm mb-3">
+            <li class="list-group-item">
+              <span class="step-num">1</span>
+              <strong>Se borró <code>express.static('public')</code></strong>.
+              Ya no hay front que servir.
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">2</span>
+              <strong>Se borró el redirect <code>/</code> → <code>login.html</code></strong>.
+              Ese HTML ya no existe acá.
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">3</span>
+              <strong>La ruta <code>/</code> ahora devuelve JSON</strong> con la
+              lista de endpoints. Sirve para verificar que el backend está vivo.
+            </li>
+          </ol>
+
+          <div class="alert alert-success mb-0">
+            <i class="bi bi-check-circle"></i>
+            <strong>El resto del backend NO cambió.</strong> Rutas, controllers,
+            middlewares y datos quedan igual. Solo dejamos de servir al front.
+          </div>
+        </section>
+
+        <!-- CAMBIOS FRONT -->
+        <section id="cambios-front" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-window"></i> Cambios en el frontend</h2>
+          <p>
+            El front cambió <strong>una sola cosa real</strong>: la URL del
+            backend. Antes era condicional, ahora es fija.
+          </p>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="diff-box before">
+                <div class="label">❌ Antes</div>
+                <pre class="tree mb-0" style="font-size:.78rem">
+<span class="kw">const</span> <span class="vr">BACKEND_PORT</span> = <span class="st">3000</span>;
+
+<span class="kw">export const</span> <span class="vr">API_URL</span> =
+  <span class="vr">location</span>.<span class="vr">port</span> === <span class="st">'3000'</span>
+    ? <span class="st">'/usuarios'</span>            <span class="cm">// mismo origen</span>
+    : <span class="st">`http://localhost:3000/usuarios`</span>;</pre>
+                <p class="small text-muted mt-2 mb-0">
+                  Funcionaba en mono repo, pero era frágil.
+                </p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="diff-box after">
+                <div class="label">✅ Ahora</div>
+                <pre class="tree mb-0" style="font-size:.78rem">
+<span class="cm">// El front SIEMPRE vive en otro puerto.</span>
+<span class="cm">// El back SIEMPRE está en el 3000.</span>
+<span class="kw">export const</span> <span class="vr">API_URL</span> =
+  <span class="st">'http://localhost:3000/usuarios'</span>;</pre>
+                <p class="small text-muted mt-2 mb-0">
+                  Una línea. Sin condicionales. Sin sorpresas.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-warning mb-0">
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>Y aparece el error más famoso de todos:</strong> si abrís el
+            <code>login.html</code> con <strong>doble clic</strong>, el navegador
+            usa <code>file://</code> y bloquea los <code>type="module"</code>.
+            Lo vemos en la sección siguiente.
+          </div>
+        </section>
+
+        <!-- CORS OBLIGATORIO -->
+        <section id="cors-obligatorio" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-shield-lock"></i> CORS pasa de opcional a obligatorio</h2>
+          <p>
+            En la Semana 2, CORS era "por las dudas". Hoy es
+            <strong>obligatorio</strong> porque front y back
+            <strong>siempre</strong> están en puertos distintos.
+          </p>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="card card-folder ok h-100 shadow-sm">
+                <div class="card-body">
+                  <h6><i class="bi bi-check-circle me-1"></i>Semana 2</h6>
+                  <p class="small mb-2">Front y back en el mismo puerto (<code>3000</code>).</p>
+                  <ul class="small mb-0">
+                    <li>Sin CORS también funcionaba.</li>
+                    <li>El navegador veía mismo origen.</li>
+                    <li>CORS era "por si alguien abría con Live Server".</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card card-folder err h-100 shadow-sm">
+                <div class="card-body">
+                  <h6><i class="bi bi-exclamation-triangle me-1"></i>Semana 3</h6>
+                  <p class="small mb-2">Front en <code>5500</code>, back en <code>3000</code>.</p>
+                  <ul class="small mb-0">
+                    <li><strong>Sin CORS, no funciona.</strong></li>
+                    <li>El navegador bloquea por origen distinto.</li>
+                    <li>El error aparece en la consola, no en el backend.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h5 class="mb-2">Cómo lo dejamos configurado</h5>
+          <div class="code-block mb-3">
+<span class="cm">// index.js del backend</span>
+<span class="kw">import</span> cors <span class="kw">from</span> <span class="st">'cors'</span>;
+
+<span class="kw">const</span> <span class="vr">app</span> = <span class="fn">express</span>();
+<span class="vr">app</span>.<span class="fn">use</span>(<span class="fn">cors</span>());        <span class="cm">// 👈 abierto a cualquier origen</span></div>
+
+          <div class="analogy-card mb-3">
+            <span class="emoji">🏢</span>
+            <strong>Analogía:</strong> el backend es un edificio con portero.
+            CORS es el cartel en la puerta que dice
+            <em>"acepto mensajeros de cualquier edificio"</em>. Si no está el
+            cartel, el mensajero de otro edificio no entra, aunque tenga la
+            dirección correcta.
+          </div>
+
+          <div class="alert alert-danger mb-0">
+            <i class="bi bi-info-circle"></i>
+            <strong>Ojo:</strong> CORS es una regla del
+            <strong>navegador</strong>, no del backend. Postman y curl no la
+            aplican. Si algo funciona en Postman pero no en el navegador,
+            sospechá de CORS.
+          </div>
+        </section>
+
+        <!-- FILE PROTOCOL -->
+        <section id="file-protocol" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-file-earmark-x"></i> El error de <code>file://</code></h2>
+          <p>
+            Este error apareció <strong>en clase</strong> y es de los más comunes.
+            Vale la pena entenderlo porque te lo vas a encontrar
+            <strong>toda la carrera</strong>.
+          </p>
+
+          <div class="code-block mb-3">
+<span class="cm">// Lo que el navegador te dice</span>
+Access to script at <span class="st">'file:///C:/.../js/login.js'</span>
+from origin <span class="st">'null'</span> has been blocked by CORS policy:
+Cross origin requests are only supported for protocol schemes:
+chrome, chrome-extension, data, http, https.</div>
+
+          <h5 class="mb-2">¿Qué está pasando?</h5>
+          <p>
+            Abriste el <code>login.html</code> con <strong>doble clic</strong>.
+            El navegador entonces lo carga con el protocolo
+            <code>file://</code>, que significa "este archivo vive en el disco
+            duro". El navegador lo trata como origen <code>null</code>.
+          </p>
+          <p>
+            Y resulta que los <code>&lt;script type="module"&gt;</code>
+            <strong>no se pueden cargar desde <code>file://</code></strong>.
+            Solo se pueden cargar desde <code>http://</code> o
+            <code>https://</code>. Es una regla del navegador, no de tu código.
+          </p>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="card card-folder err shadow-sm h-100">
+                <div class="card-body">
+                  <h6><i class="bi bi-x-circle me-1"></i>Mal</h6>
+                  <div class="code-block" style="font-size:.78rem">file:///C:/Users/.../login.html</div>
+                  <p class="small mb-0 mt-2">
+                    Origen <code>null</code>. El navegador bloquea los módulos.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card card-folder ok shadow-sm h-100">
+                <div class="card-body">
+                  <h6><i class="bi bi-check-circle me-1"></i>Bien</h6>
+                  <div class="code-block" style="font-size:.78rem">http://localhost:5500/login.html</div>
+                  <p class="small mb-0 mt-2">
+                    Origen <code>http://localhost:5500</code>. Los módulos
+                    cargan sin problema.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analogy-card mb-0">
+            <span class="emoji">🔌</span>
+            <strong>Analogía:</strong> es como querer enchufar un cargador
+            europeo en un tomacorriente argentino. El cargador está bien, el
+            tomacorriente está bien, pero <strong>el formato no coincide</strong>.
+            Los módulos necesitan <code>http://</code> o <code>https://</code>,
+            no <code>file://</code>.
+          </div>
+        </section>
+
+        <!-- MONO VS MULTI -->
+        <section id="mono-vs-multi" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-box-seam"></i> Mono repo vs Multi repo</h2>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="card h-100 border-0 shadow-sm" style="border-top:4px solid #0d6efd !important">
+                <div class="card-body">
+                  <h5>📦 Monorepo</h5>
+                  <p class="small text-muted">Todo el código en un solo repositorio.</p>
+
+                  <p class="small mb-1"><strong>✅ Cuándo usarlo</strong></p>
+                  <ul class="small mb-3">
+                    <li>Proyecto nuevo o MVP.</li>
+                    <li>Equipo chico (1-5 personas).</li>
+                    <li>Mismo equipo hace front y back.</li>
+                    <li>Un solo deploy, un solo server.</li>
+                  </ul>
+
+                  <p class="small mb-1"><strong>❌ Cuándo NO</strong></p>
+                  <ul class="small mb-0">
+                    <li>Equipos grandes con permisos distintos.</li>
+                    <li>Deploys independientes (Vercel + Render).</li>
+                    <li>Stack muy distinto entre front y back.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card h-100 border-0 shadow-sm" style="border-top:4px solid #6610f2 !important">
+                <div class="card-body">
+                  <h5>🧩 Multi repo</h5>
+                  <p class="small text-muted">Un repositorio por proyecto.</p>
+
+                  <p class="small mb-1"><strong>✅ Cuándo usarlo</strong></p>
+                  <ul class="small mb-3">
+                    <li>Equipos separados front / back.</li>
+                    <li>Deploys independientes.</li>
+                    <li>Mobile + web + back como repos distintos.</li>
+                    <li>Cada repo con su propio CI/CD.</li>
+                  </ul>
+
+                  <p class="small mb-1"><strong>❌ Cuándo NO</strong></p>
+                  <ul class="small mb-0">
+                    <li>Proyecto chico con un solo dev.</li>
+                    <li>MVP rápido que necesita velocidad.</li>
+                    <li>Cuando no hay equipo para mantener la separación.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analogy-card mb-0">
+            <span class="emoji">🍔</span>
+            <strong>Analogía:</strong> un <strong>food truck</strong> que cocina
+            y vende en el mismo lugar es un <strong>monorepo</strong>. Una
+            <strong>franquicia</strong> con la cocina central en un lado y
+            varias sucursales en otros es <strong>multi repo</strong>. Los dos
+            venden lo mismo, pero se organizan distinto.
+          </div>
+        </section>
+
+        <!-- CASOS DE USO -->
+        <section id="casos-uso" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-briefcase"></i> Casos de uso reales</h2>
+          <p>
+            Empresas que todos conocemos y qué eligen:
+          </p>
+
+          <div class="table-responsive shadow-sm mb-3">
+            <table class="table table-hover align-middle mb-0 bg-white">
+              <thead class="table-dark">
+                <tr>
+                  <th>Empresa / Producto</th>
+                  <th>Estrategia</th>
+                  <th>Por qué</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Google</strong></td>
+                  <td><span class="pill pill-blue">Monorepo</span></td>
+                  <td>Un repo gigante con todo el código. Miles de ingenieros, pero herramientas internas para manejarlo.</td>
+                </tr>
+                <tr>
+                  <td><strong>Meta (Facebook)</strong></td>
+                  <td><span class="pill pill-blue">Monorepo</span></td>
+                  <td>Un repo enorme con Facebook, Instagram, WhatsApp, backend, mobile y web.</td>
+                </tr>
+                <tr>
+                  <td><strong>Netflix</strong></td>
+                  <td><span class="pill pill-purple">Multi repo</span></td>
+                  <td>Decenas de microservicios, cada uno con su repo y su equipo.</td>
+                </tr>
+                <tr>
+                  <td><strong>Spotify</strong></td>
+                  <td><span class="pill pill-purple">Multi repo</span></td>
+                  <td>Equipos autónomos con deploys independientes.</td>
+                </tr>
+                <tr>
+                  <td><strong>Vercel / Railway</strong></td>
+                  <td><span class="pill pill-purple">Multi repo</span></td>
+                  <td>Cada servicio se deploya por separado. Front a Vercel, back a Railway.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="analogy-card mb-0">
+            <span class="emoji">🏢</span>
+            <strong>Analogía:</strong> pensá en <strong>McDonald's</strong>. La
+            casa central define el menú, las recetas y los precios (backend).
+            Cada sucursal tiene su local, su equipo y su horario (frontend).
+            Cambian cosas localmente sin frenar al resto. Eso es multi repo.
+          </div>
+        </section>
+
+        <!-- TAKEAWAYS -->
+        <section id="takeaways" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-lightbulb"></i> Para llevar</h2>
+          <ol class="list-group list-group-numbered shadow-sm">
+            <li class="list-group-item">
+              <span class="step-num">1</span>
+              <strong>Backend y frontend pueden vivir separados.</strong>
+              No siempre van juntos. Depende del tamaño del proyecto.
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">2</span>
+              <strong>CORS pasa a ser obligatorio</strong> cuando front y back
+              están en puertos distintos. No es opcional.
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">3</span>
+              <strong>Nunca abras HTML con <code>type="module"</code> desde
+              <code>file://</code></strong>. Siempre servidor HTTP.
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">4</span>
+              <strong><code>api.js</code> se simplifica:</strong> una URL fija
+              al backend. Menos condicionales, menos errores.
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">5</span>
+              <strong>Monorepo para empezar, multi repo para escalar.</strong>
+              No hay una respuesta correcta universal.
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">6</span>
+              <strong>El contrato de la API es lo único que comparten.</strong>
+              URLs, métodos, body y status codes. Todo lo demás es libre.
+            </li>
+          </ol>
+        </section>
+
+        <!-- PRÓXIMO -->
+        <section id="proximo" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-rocket-takeoff"></i> Próxima semana</h2>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="card card-folder h-100 shadow-sm">
+                <div class="card-body">
+                  <h6>🔐 JWT real</h6>
+                  <p class="small mb-0">
+                    Login devuelve un token firmado. Rutas protegidas verifican
+                    antes de dejar pasar.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card card-folder ok h-100 shadow-sm">
+                <div class="card-body">
+                  <h6>🍪 Cookies httpOnly</h6>
+                  <p class="small mb-0">
+                    En vez de <code>sessionStorage</code>, guardamos el token en
+                    una cookie que JavaScript no puede leer.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card card-folder warn h-100 shadow-sm">
+                <div class="card-body">
+                  <h6>🌍 Deploy real</h6>
+                  <p class="small mb-0">
+                    Front en Vercel o Netlify, back en Render. El proyecto deja
+                    de vivir en <code>localhost</code>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-center">
+    <p class="mb-1">AW2 · Semana 3 · Multi repo, CORS y el mundo real</p>
+    <small>Hecho con <i class="bi bi-heart-fill text-danger"></i> y mucho Express</small>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

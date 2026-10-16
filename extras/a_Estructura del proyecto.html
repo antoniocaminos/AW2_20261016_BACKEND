@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estructura del proyecto — API Usuarios</title>
+
+  <!-- Bootstrap 5 -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+  <!-- Iconos Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    body {
+      background: #f8f9fa;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    .hero {
+      background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+      color: #fff;
+      padding: 3rem 1rem;
+      border-radius: 0 0 1.5rem 1.5rem;
+    }
+    .hero h1 { font-weight: 700; }
+    .card-folder {
+      border-left: 5px solid #0d6efd;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card-folder:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+    }
+    .tree {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1.25rem 1.5rem;
+      border-radius: .75rem;
+      font-family: "Fira Code", Consolas, monospace;
+      font-size: .9rem;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .tree .folder { color: #4fc3f7; }
+    .tree .file   { color: #ffcc80; }
+    .tree .comment{ color: #6a9955; }
+    .badge-why    { background: #6610f2; }
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem; height: 2rem;
+      border-radius: 50%;
+      background: #0d6efd;
+      color: #fff;
+      font-weight: 700;
+      margin-right: .5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <header class="hero text-center">
+    <h1 class="display-5">📁 Estructura del proyecto</h1>
+    <p class="lead mb-0">API REST de Usuarios con Express + Node ESM</p>
+  </header>
+
+  <main class="container my-5">
+
+    <!-- ÁRBOL -->
+    <section class="mb-5">
+      <h2 class="h4 mb-3"><i class="bi bi-diagram-3"></i> Árbol del proyecto</h2>
+      <pre class="tree mb-0">
+AW2_20260918/
+├── <span class="folder">controllers/</span>
+│   └── <span class="file">usuarios.controller.js</span>    <span class="comment">// Lógica del CRUD</span>
+├── <span class="folder">data/</span>
+│   └── <span class="file">usuarios.json</span>            <span class="comment">// "Base de datos" en JSON</span>
+├── <span class="folder">middlewares/</span>
+│   └── <span class="file">logger.middleware.js</span>     <span class="comment">// Log de cada request</span>
+├── <span class="folder">routes/</span>
+│   └── <span class="file">usuarios.routes.js</span>       <span class="comment">// Define los endpoints</span>
+├── <span class="file">.env</span>                         <span class="comment">// Variables de entorno</span>
+├── <span class="file">.gitignore</span>                   <span class="comment">// Qué NO subir a Git</span>
+├── <span class="file">index.js</span>                     <span class="comment">// Punto de entrada del server</span>
+├── <span class="file">package.json</span>                 <span class="comment">// Dependencias y scripts</span>
+└── <span class="file">package-lock.json</span>            <span class="comment">// Versiones exactas (auto)</span>
+      </pre>
+    </section>
+
+    <!-- EXPLICACIÓN DE CARPETAS -->
+    <section class="mb-5">
+      <h2 class="h4 mb-4"><i class="bi bi-folder2-open"></i> ¿Qué hay en cada carpeta?</h2>
+
+      <div class="row g-4">
+
+        <div class="col-md-6">
+          <div class="card card-folder h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">🚪 <code>index.js</code></h5>
+              <p class="card-text mb-0">
+                Es el <strong>punto de entrada</strong>. Crea la app de Express,
+                registra los middlewares globales (<code>express.json()</code>,
+                <code>logger</code>), monta el router de usuarios bajo
+                <code>/usuarios</code> y levanta el servidor con <code>app.listen()</code>.
+                No tiene lógica de negocio.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card card-folder h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">🛣️ <code>routes/</code></h5>
+              <p class="card-text mb-0">
+                Define <strong>qué URL responde a qué función</strong>. Es un
+                "índice": <code>POST /login</code>, <code>GET /</code>,
+                <code>GET /:id</code>, etc. No tiene lógica, sólo pega la URL
+                con el controller correspondiente.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card card-folder h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">🧠 <code>controllers/</code></h5>
+              <p class="card-text mb-0">
+                Contiene la <strong>lógica del CRUD</strong>: leer el JSON,
+                validar campos, calcular el nuevo <code>id</code>, guardar,
+                responder con el status correcto (200, 201, 400, 401, 404, 409, 500).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card card-folder h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">🧩 <code>middlewares/</code></h5>
+              <p class="card-text mb-0">
+                Funciones que se ejecutan <strong>entre la request y la respuesta</strong>:
+                loguear, validar body, chequear token, manejar errores. Reusables en
+                todas las rutas.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card card-folder h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">🗄️ <code>data/</code></h5>
+              <p class="card-text mb-0">
+                Los <strong>datos persistentes</strong>. En este proyecto es un
+                JSON que hace de base de datos. Cuando migres a MongoDB o SQL, esta
+                carpeta desaparece (o cambia).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="card card-folder h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">⚙️ <code>.env</code></h5>
+              <p class="card-text mb-0">
+                Variables de entorno (puerto, claves, URLs). <strong>Nunca</strong>
+                se sube a Git. Se lee con <code>dotenv</code> y se accede vía
+                <code>process.env.PORT</code>.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ORDEN DE EJECUCIÓN -->
+    <section class="mb-5">
+      <h2 class="h4 mb-4"><i class="bi bi-list-ol"></i> ¿Por qué el orden importa?</h2>
+      <p>
+        Express ejecuta <strong>en cascada</strong>: cada <code>app.use()</code>
+        que registrás corre en el orden en que fue declarado. Si lo pones al
+        revés, o no llega la request, o el middleware nunca se ejecuta.
+      </p>
+
+      <ol class="list-group list-group-numbered shadow-sm">
+
+        <li class="list-group-item">
+          <span class="step-num">1</span>
+          <strong>Imports</strong> — todo lo que se usa debe estar importado primero.
+        </li>
+
+        <li class="list-group-item">
+          <span class="step-num">2</span>
+          <strong><code>dotenv.config()</code></strong> — cargar variables antes de
+          leer <code>process.env</code>.
+        </li>
+
+        <li class="list-group-item">
+          <span class="step-num">3</span>
+          <strong><code>const app = express()</code></strong> — crear la app antes
+          de configurarla.
+        </li>
+
+        <li class="list-group-item">
+          <span class="step-num">4</span>
+          <strong>Middlewares globales</strong>
+          (<code>express.json()</code>, <code>logger</code>) — deben estar activos
+          antes de las rutas que los usan.
+        </li>
+
+        <li class="list-group-item">
+          <span class="step-num">5</span>
+          <strong>Rutas</strong> (<code>app.get('/')</code>,
+          <code>app.use('/usuarios', ...)</code>) — después de los middlewares.
+        </li>
+
+        <li class="list-group-item">
+          <span class="step-num">6</span>
+          <strong><code>app.listen()</code></strong> — al final. Recién cuando todo
+          está definido, el server empieza a escuchar.
+        </li>
+
+      </ol>
+
+      <div class="alert alert-info mt-4 mb-0">
+        <i class="bi bi-info-circle"></i>
+        <strong>Regla práctica:</strong> en <code>index.js</code>, la última línea
+        siempre debe ser <code>app.listen()</code>. Todo lo demás va antes.
+      </div>
+    </section>
+
+    <!-- FLUJO DE UNA REQUEST -->
+    <section class="mb-5">
+      <h2 class="h4 mb-4"><i class="bi bi-arrow-right-circle"></i> Flujo de una request</h2>
+
+      <div class="d-flex flex-wrap gap-3 align-items-center">
+        <span class="badge text-bg-primary p-3">Cliente (Postman)</span>
+        <i class="bi bi-arrow-right fs-4"></i>
+        <span class="badge text-bg-secondary p-3">index.js → express.json()</span>
+        <i class="bi bi-arrow-right fs-4"></i>
+        <span class="badge text-bg-secondary p-3">middleware logger</span>
+        <i class="bi bi-arrow-right fs-4"></i>
+        <span class="badge text-bg-warning p-3">routes/usuarios.routes.js</span>
+        <i class="bi bi-arrow-right fs-4"></i>
+        <span class="badge text-bg-success p-3">controllers/usuarios.controller.js</span>
+        <i class="bi bi-arrow-right fs-4"></i>
+        <span class="badge text-bg-dark p-3">data/usuarios.json</span>
+      </div>
+
+      <div class="alert alert-success mt-4 mb-0">
+        <i class="bi bi-check2-circle"></i>
+        Y la respuesta vuelve por el mismo camino: controller → router → cliente.
+      </div>
+    </section>
+
+    <!-- BADGES DE RESPONSABILIDAD -->
+    <section class="mb-5">
+      <h2 class="h4 mb-4"><i class="bi bi-shield-check"></i> Una carpeta, una responsabilidad</h2>
+      <div class="table-responsive shadow-sm">
+        <table class="table table-hover align-middle mb-0 bg-white">
+          <thead class="table-dark">
+            <tr>
+              <th>Carpeta / Archivo</th>
+              <th>Responsabilidad</th>
+              <th>¿Qué NO va acá?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>index.js</code></td>
+              <td>Arrancar el server y montar todo</td>
+              <td>Lógica de negocio, validaciones</td>
+            </tr>
+            <tr>
+              <td><code>routes/</code></td>
+              <td>Mapear URL + método → controller</td>
+              <td>Leer archivos, validar, calcular ids</td>
+            </tr>
+            <tr>
+              <td><code>controllers/</code></td>
+              <td>Lógica de negocio (CRUD, validaciones)</td>
+              <td>Definir rutas o montar middlewares globales</td>
+            </tr>
+            <tr>
+              <td><code>middlewares/</code></td>
+              <td>Funciones que corren antes del controller</td>
+              <td>Lógica de negocio específica de un endpoint</td>
+            </tr>
+            <tr>
+              <td><code>data/</code></td>
+              <td>Persistencia cruda (JSON, seeds)</td>
+              <td>Lógica, validaciones, transformaciones</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- PRÓXIMOS PASOS -->
+    <section class="mb-5">
+      <h2 class="h4 mb-4"><i class="bi bi-rocket-takeoff"></i> Próximos pasos sugeridos</h2>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <h6 class="card-title">🛡️ errorHandler.middleware.js</h6>
+              <p class="card-text small mb-0">
+                Capturar errores en un solo lugar y dejar de repetir el
+                <code>try/catch</code> en cada controller.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <h6 class="card-title">✅ validarUsuario.middleware.js</h6>
+              <p class="card-text small mb-0">
+                Mover todos los <code>if (!campo)</code> a un middleware
+                reutilizable y dejar el controller limpio.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+              <h6 class="card-title">🔐 auth.middleware.js + JWT</h6>
+              <p class="card-text small mb-0">
+                Login devuelve un token y las rutas protegidas lo verifican
+                antes de dejar pasar.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="text-center text-muted py-4 small">
+    AW2 · Estructura del proyecto · Hecho con <i class="bi bi-heart-fill text-danger"></i> y Express
+  </footer>
+
+  <!-- Bootstrap JS (opcional, para tooltips/collapse) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+  ></script>
+</body>
+</html>

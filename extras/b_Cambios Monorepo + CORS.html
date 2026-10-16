@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Front + Backend · Semana 2 — API Usuarios</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
+  <style>
+    body {
+      background: #f8f9fa;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      scroll-behavior: smooth;
+    }
+    .hero {
+      background: linear-gradient(135deg, #0d6efd 0%, #6610f2 100%);
+      color: #fff;
+      padding: 3.5rem 1rem 3rem;
+      border-radius: 0 0 1.5rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 80% 20%, rgba(255,255,255,.15), transparent 40%);
+      pointer-events: none;
+    }
+    .hero h1 { font-weight: 700; }
+    .hero .badge-week {
+      background: rgba(255,255,255,.2);
+      padding: .4rem 1rem;
+      border-radius: 999px;
+      font-size: .85rem;
+      font-weight: 500;
+    }
+    .card-folder {
+      border-left: 5px solid #0d6efd;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .card-folder:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 .5rem 1rem rgba(0,0,0,.08);
+    }
+    .card-folder.warn { border-left-color: #ffc107; }
+    .card-folder.ok   { border-left-color: #198754; }
+    .card-folder.err  { border-left-color: #dc3545; }
+    .tree {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 1.25rem 1.5rem;
+      border-radius: .75rem;
+      font-family: "Fira Code", Consolas, monospace;
+      font-size: .88rem;
+      line-height: 1.65;
+      overflow-x: auto;
+    }
+    .tree .folder  { color: #4fc3f7; }
+    .tree .file    { color: #ffcc80; }
+    .tree .comment { color: #6a9955; }
+    .tree .new     { color: #ff8a80; font-weight: 600; }
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem; height: 2rem;
+      border-radius: 50%;
+      background: #0d6efd;
+      color: #fff;
+      font-weight: 700;
+      margin-right: .5rem;
+      flex-shrink: 0;
+    }
+    .flow-step {
+      padding: .65rem 1rem;
+      border-radius: .5rem;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      font-size: .9rem;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .flow-arrow {
+      color: #0d6efd;
+      font-size: 1.4rem;
+      align-self: center;
+    }
+    .code-block {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border-radius: .75rem;
+      padding: 1rem 1.25rem;
+      font-family: "Fira Code", Consolas, monospace;
+      font-size: .82rem;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .code-block .kw { color: #569cd6; }
+    .code-block .st { color: #ce9178; }
+    .code-block .cm { color: #6a9955; }
+    .code-block .fn { color: #dcdcaa; }
+    .code-block .vr { color: #9cdcfe; }
+    .analogy-card {
+      background: linear-gradient(135deg, #fff7e6 0%, #fff 100%);
+      border-left: 5px solid #ff9800;
+      border-radius: .75rem;
+      padding: 1.25rem;
+    }
+    .analogy-card .emoji {
+      font-size: 2rem;
+      margin-right: .5rem;
+    }
+    .pill {
+      display: inline-block;
+      padding: .2rem .7rem;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 600;
+    }
+    .pill-blue   { background: #e3f2fd; color: #0d47a1; }
+    .pill-green  { background: #e8f5e9; color: #1b5e20; }
+    .pill-orange { background: #fff3e0; color: #e65100; }
+    .pill-red    { background: #ffebee; color: #b71c1c; }
+    .pill-purple { background: #f3e5f5; color: #4a148c; }
+    .sidenav {
+      position: sticky;
+      top: 1rem;
+      background: #fff;
+      border-radius: .75rem;
+      padding: 1rem;
+      box-shadow: 0 .25rem .75rem rgba(0,0,0,.05);
+    }
+    .sidenav a {
+      display: block;
+      padding: .35rem .75rem;
+      border-radius: .4rem;
+      color: #495057;
+      text-decoration: none;
+      font-size: .88rem;
+      transition: background .15s;
+    }
+    .sidenav a:hover {
+      background: #f1f3f5;
+      color: #0d6efd;
+    }
+    section { scroll-margin-top: 1rem; }
+    footer {
+      background: #212529;
+      color: #adb5bd;
+      padding: 2rem 0;
+      margin-top: 4rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <header class="hero text-center">
+    <span class="badge-week mb-3 d-inline-block">Semana 2 · AW2</span>
+    <h1 class="display-5 mb-2">🌐 Front + Backend, ahora sí</h1>
+    <p class="lead mb-0">De Postman al navegador: sessionStorage, CORS, mono repo y el login real</p>
+  </header>
+
+  <main class="container my-5">
+    <div class="row g-4">
+
+      <!-- SIDEBAR -->
+      <div class="col-lg-3 d-none d-lg-block">
+        <nav class="sidenav">
+          <p class="fw-bold small text-uppercase text-muted mb-2">En esta clase</p>
+          <a href="#resumen"><i class="bi bi-flag me-1"></i>Resumen</a>
+          <a href="#estructura"><i class="bi bi-diagram-3 me-1"></i>Estructura nueva</a>
+          <a href="#mono"><i class="bi bi-box-seam me-1"></i>Mono vs Multi repo</a>
+          <a href="#cors"><i class="bi bi-shield-lock me-1"></i>¿Qué es CORS?</a>
+          <a href="#storage"><i class="bi bi-hdd me-1"></i>sessionStorage vs localStorage</a>
+          <a href="#flujo"><i class="bi bi-arrow-right-circle me-1"></i>Flujo del login</a>
+          <a href="#puertos"><i class="bi bi-plug me-1"></i>3000 vs 5500</a>
+          <a href="#api-js"><i class="bi bi-bridge me-1"></i>api.js: el puente</a>
+          <a href="#takeaways"><i class="bi bi-lightbulb me-1"></i>Para llevar</a>
+          <a href="#proximo"><i class="bi bi-rocket-takeoff me-1"></i>Próxima semana</a>
+        </nav>
+      </div>
+
+      <!-- CONTENIDO -->
+      <div class="col-lg-9">
+
+        <!-- RESUMEN -->
+        <section id="resumen" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-flag"></i> ¿De dónde venimos y dónde estamos?</h2>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="card card-folder h-100 shadow-sm">
+                <div class="card-body">
+                  <h6 class="text-muted small text-uppercase mb-2">Semana 1</h6>
+                  <h5>Backend puro</h5>
+                  <p class="mb-0 small">
+                    API REST con Express. Probada con <strong>Postman</strong>.
+                    Leer, crear, actualizar y borrar usuarios contra un JSON.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card card-folder warn h-100 shadow-sm">
+                <div class="card-body">
+                  <h6 class="text-muted small text-uppercase mb-2">Semana 2 (hoy)</h6>
+                  <h5>Frontend real</h5>
+                  <p class="mb-0 small">
+                    Login + dashboard en HTML/CSS/JS. El navegador <strong>habla
+                    directamente con nuestra API</strong>. Aparecen CORS y storage.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card card-folder ok h-100 shadow-sm">
+                <div class="card-body">
+                  <h6 class="text-muted small text-uppercase mb-2">Semana 3</h6>
+                  <h5>Multi repo</h5>
+                  <p class="mb-0 small">
+                    Separamos front y back en repos distintos. Aparece
+                    <strong>JWT</strong> y la autenticación de verdad.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ESTRUCTURA -->
+        <section id="estructura" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-diagram-3"></i> Estructura del proyecto hoy</h2>
+          <p>
+            Le agregamos <strong>una sola carpeta nueva</strong> al backend de la
+            semana pasada: <code>public/</code>. Ahí vive todo el front.
+          </p>
+          <pre class="tree mb-3">
+AW2_20261009/
+├── <span class="folder">controllers/</span>
+│   └── <span class="file">usuarios.controller.js</span>     <span class="comment">// lógica del CRUD</span>
+├── <span class="folder">data/</span>
+│   └── <span class="file">usuarios.json</span>             <span class="comment">// "base de datos"</span>
+├── <span class="folder">middlewares/</span>
+│   └── <span class="file">logger.middleware.js</span>      <span class="comment">// log de cada request</span>
+├── <span class="folder new">public/</span>                       <span class="comment">// 👈 NUEVO: todo el front</span>
+│   ├── <span class="file">login.html</span>
+│   ├── <span class="file">dashboard.html</span>
+│   ├── <span class="folder">css/</span>
+│   │   └── <span class="file">styles.css</span>
+│   └── <span class="folder">js/</span>
+│       ├── <span class="file new">api.js</span>                <span class="comment">// 👈 NUEVO: puente al backend</span>
+│       ├── <span class="file">login.js</span>
+│       └── <span class="file">dashboard.js</span>
+├── <span class="folder">routes/</span>
+│   └── <span class="file">usuarios.routes.js</span>
+├── <span class="file">.env</span>
+├── <span class="file">index.js</span>                      <span class="comment">// +1 línea: express.static('public')</span>
+└── <span class="file">package.json</span>                  <span class="comment">// +1 dependencia: cors</span>
+          </pre>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="card card-folder shadow-sm h-100">
+                <div class="card-body">
+                  <h6><i class="bi bi-folder-plus me-1"></i><code>public/</code></h6>
+                  <p class="mb-0 small">
+                    Todo lo que el navegador puede pedir. Express lo sirve con
+                    <strong>una sola línea</strong>:
+                  </p>
+                  <div class="code-block mt-2">app.use(express.static('public'));</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card card-folder ok shadow-sm h-100">
+                <div class="card-body">
+                  <h6><i class="bi bi-bridge me-1"></i><code>public/js/api.js</code></h6>
+                  <p class="mb-0 small">
+                    Un archivo chiquito que <strong>centraliza todas las
+                    llamadas al backend</strong>. Si cambia la URL, se cambia en
+                    un solo lugar.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- MONO VS MULTI -->
+        <section id="mono" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-box-seam"></i> Mono repo vs Multi repo</h2>
+          <p>
+            <strong>Monorepo</strong> = un solo repositorio con todo el código.
+            <strong>Multi repo</strong> = varios repos, uno por proyecto.
+          </p>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="card h-100 border-0 shadow-sm" style="border-top:4px solid #0d6efd !important">
+                <div class="card-body">
+                  <h5>📦 Monorepo <span class="pill pill-blue">estamos acá</span></h5>
+                  <p class="small text-muted">Front y back en el <strong>mismo repo</strong>.</p>
+                  <pre class="tree mb-3" style="font-size:.78rem">proyecto/
+├── controllers/
+├── public/
+│   ├── login.html
+│   └── js/
+├── routes/
+└── index.js</pre>
+                  <p class="small mb-1"><strong>✅ Ventajas</strong></p>
+                  <ul class="small mb-3">
+                    <li>Un solo <code>git clone</code> y ya está todo.</li>
+                    <li>Cambios front+back en un mismo commit.</li>
+                    <li>Fácil de arrancar, ideal para aprender.</li>
+                  </ul>
+                  <p class="small mb-1"><strong>❌ Desventajas</strong></p>
+                  <ul class="small mb-0">
+                    <li>Un repo gigante a medida que crece.</li>
+                    <li>Difícil asignar permisos por equipo.</li>
+                    <li>Si cae el repo, cae todo.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card h-100 border-0 shadow-sm" style="border-top:4px solid #6610f2 !important">
+                <div class="card-body">
+                  <h5>🧩 Multi repo <span class="pill pill-purple">semana que viene</span></h5>
+                  <p class="small text-muted">Un repo para el front, otro para el back.</p>
+                  <pre class="tree mb-3" style="font-size:.78rem">backend/
+├── controllers/
+├── routes/
+└── index.js
+
+frontend/
+├── login.html
+├── dashboard.html
+└── js/</pre>
+                  <p class="small mb-1"><strong>✅ Ventajas</strong></p>
+                  <ul class="small mb-3">
+                    <li>Equipos independientes (front / back).</li>
+                    <li>Deploys separados (Vercel para front, Render para back).</li>
+                    <li>Cada repo tiene su propio README y CI.</li>
+                  </ul>
+                  <p class="small mb-1"><strong>❌ Desventajas</strong></p>
+                  <ul class="small mb-0">
+                    <li>Dos <code>git clone</code>, dos <code>npm install</code>.</li>
+                    <li>Sincronizar versiones de la API cuesta más.</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analogy-card">
+            <span class="emoji">🍔</span>
+            <strong>Ejemplo real:</strong> un food truck que cocina y vende en el
+            mismo lugar es un <strong>monorepo</strong>. Un restaurante con cocina
+            en un local y salón en otro es <strong>multi repo</strong>.
+            Los dos funcionan, pero se organizan distinto.
+          </div>
+
+          <div class="alert alert-info mt-3 mb-0">
+            <i class="bi bi-lightbulb"></i>
+            <strong>Regla práctica:</strong> empezás con monorepo (más simple).
+            Cuando el equipo crece o el front se vuelve una app pesada (React,
+            mobile), pasás a multi repo.
+          </div>
+        </section>
+
+        <!-- CORS -->
+        <section id="cors" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-shield-lock"></i> ¿Qué es CORS y por qué lo necesitamos?</h2>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-8">
+              <p>
+                <strong>CORS</strong> = <em>Cross-Origin Resource Sharing</em>.
+                Es una <strong>regla del navegador</strong> (no del servidor) que
+                dice: <em>"una página web solo puede pedir datos a su mismo
+                origen, salvo que el otro origen lo autorice explícitamente"</em>.
+              </p>
+
+              <p class="mb-2"><strong>¿Qué es "origen"?</strong> Es la combinación de:</p>
+              <ul class="small">
+                <li><strong>Protocolo</strong> → <code>http://</code> vs <code>https://</code></li>
+                <li><strong>Dominio</strong> → <code>localhost</code> vs <code>midominio.com</code></li>
+                <li><strong>Puerto</strong> → <code>:3000</code> vs <code>:5500</code> ⚠️</li>
+              </ul>
+
+              <p class="mb-0">
+                Si <strong>cualquiera</strong> de los tres cambia, es otro
+                origen y el navegador bloquea la petición… a menos que el
+                servidor responda con la cabecera
+                <code>Access-Control-Allow-Origin</code>.
+              </p>
+            </div>
+            <div class="col-md-4">
+              <div class="card card-folder warn shadow-sm h-100">
+                <div class="card-body">
+                  <h6><i class="bi bi-exclamation-triangle me-1"></i>El problema típico</h6>
+                  <p class="small mb-0">
+                    Front en <code>localhost:5500</code><br>
+                    Back en <code>localhost:3000</code><br>
+                    → Son <strong>orígenes distintos</strong>.<br>
+                    → El navegador bloquea sin CORS.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analogy-card mb-4">
+            <span class="emoji">🏢</span>
+            <strong>Analogía:</strong> imaginá que tu navegador es un edificio de
+            oficinas. Cada página web que abrís es una oficina. Por defecto, una
+            oficina <strong>no puede mandar mensajeros</strong> a otras oficinas,
+            salvo que la otra oficina haya puesto un cartel de
+            <em>"acepto mensajeros de cualquier lado"</em>. Ese cartel es
+            <code>app.use(cors())</code>.
+          </div>
+
+          <h5 class="mb-2">Cómo lo resolvimos nosotros</h5>
+          <div class="code-block mb-3">
+<span class="cm">// index.js</span>
+<span class="kw">import</span> cors <span class="kw">from</span> <span class="st">'cors'</span>;
+
+<span class="kw">const</span> <span class="vr">app</span> = <span class="fn">express</span>();
+<span class="vr">app</span>.<span class="fn">use</span>(<span class="fn">cors</span>());        <span class="cm">// 👈 autoriza a cualquier origen</span>
+<span class="vr">app</span>.<span class="fn">use</span>(<span class="fn">express</span>.<span class="fn">json</span>());</div>
+
+          <div class="alert alert-warning mb-0">
+            <i class="bi bi-exclamation-circle"></i>
+            <strong>Ojo:</strong> <code>cors()</code> sin argumentos deja pasar
+            <strong>a cualquiera</strong>. Está bien para desarrollo. En
+            producción se configura con la lista de orígenes permitidos.
+          </div>
+        </section>
+
+        <!-- STORAGE -->
+        <section id="storage" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-hdd"></i> sessionStorage vs localStorage</h2>
+          <p>
+            El navegador nos da <strong>dos cajones</strong> donde guardar datos
+            del lado del cliente. No son cookies: viven en el navegador y se
+            acceden con JavaScript puro.
+          </p>
+
+          <div class="table-responsive shadow-sm mb-3">
+            <table class="table table-hover align-middle mb-0 bg-white">
+              <thead class="table-dark">
+                <tr>
+                  <th></th>
+                  <th><code>sessionStorage</code></th>
+                  <th><code>localStorage</code></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>¿Cuánto dura?</strong></td>
+                  <td>Se borra al cerrar la pestaña</td>
+                  <td>Queda hasta que se borre manualmente</td>
+                </tr>
+                <tr>
+                  <td><strong>¿Comparte entre pestañas?</strong></td>
+                  <td>No, cada pestaña tiene el suyo</td>
+                  <td>Sí, todas las pestañas ven lo mismo</td>
+                </tr>
+                <tr>
+                  <td><strong>Capacidad</strong></td>
+                  <td>~5 MB</td>
+                  <td>~5-10 MB</td>
+                </tr>
+                <tr>
+                  <td><strong>Persiste al apagar la PC</strong></td>
+                  <td>No</td>
+                  <td>Sí</td>
+                </tr>
+                <tr>
+                  <td><strong>¿Para qué lo usamos?</strong></td>
+                  <td>Guardar la sesión del login</td>
+                  <td>"Recordarme" / preferencias</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="analogy-card mb-4">
+            <span class="emoji">📝</span>
+            <strong>Analogía:</strong> <code>sessionStorage</code> es el
+            <strong>pizarrón de la clase</strong>: lo escribís hoy, mañana se
+            borra. <code>localStorage</code> es tu <strong>cuaderno</strong>:
+            queda guardado hasta que vos decidas borrarlo.
+          </div>
+
+          <h5 class="mb-2">Uso concreto en nuestro proyecto</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="code-block">
+<span class="cm">// Al loguear OK (login.js)</span>
+<span class="vr">sessionStorage</span>.<span class="fn">setItem</span>(<span class="st">'user'</span>,
+  <span class="fn">JSON</span>.<span class="fn">stringify</span>({ email, nombre })
+);</div>
+            </div>
+            <div class="col-md-6">
+              <div class="code-block">
+<span class="cm">// Al entrar al dashboard</span>
+<span class="kw">const</span> <span class="vr">user</span> = <span class="fn">JSON</span>.<span class="fn">parse</span>(
+  <span class="vr">sessionStorage</span>.<span class="fn">getItem</span>(<span class="st">'user'</span>)
+);
+<span class="kw">if</span> (!<span class="vr">user</span>) <span class="vr">location</span>.<span class="vr">href</span> = <span class="st">'./login.html'</span>;</div>
+            </div>
+          </div>
+
+          <div class="alert alert-warning mt-3 mb-0">
+            <i class="bi bi-shield-exclamation"></i>
+            <strong>Importante:</strong> <code>sessionStorage</code> y
+            <code>localStorage</code> <strong>NO son seguros</strong> para
+            guardar tokens. Cualquiera con DevTools los puede leer. Por eso la
+            semana que viene pasamos a <strong>JWT en cookies httpOnly</strong>.
+          </div>
+        </section>
+
+        <!-- FLUJO -->
+        <section id="flujo" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-arrow-right-circle"></i> Flujo completo del login</h2>
+          <p>Qué pasa paso a paso desde que el usuario aprieta "Ingresar":</p>
+
+          <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+            <span class="flow-step">👤 Usuario completa form</span>
+            <i class="bi bi-arrow-right flow-arrow"></i>
+            <span class="flow-step">📤 <code>login.js</code> hace fetch</span>
+            <i class="bi bi-arrow-right flow-arrow"></i>
+            <span class="flow-step">🧩 <code>api.js</code> arma URL</span>
+            <i class="bi bi-arrow-right flow-arrow"></i>
+            <span class="flow-step">🛡️ CORS autoriza</span>
+            <i class="bi bi-arrow-right flow-arrow"></i>
+            <span class="flow-step">🛣️ Router matchea</span>
+            <i class="bi bi-arrow-right flow-arrow"></i>
+            <span class="flow-step">🧠 Controller valida</span>
+            <i class="bi bi-arrow-right flow-arrow"></i>
+            <span class="flow-step">🗄️ Lee JSON</span>
+            <i class="bi bi-arrow-right flow-arrow"></i>
+            <span class="flow-step">📥 Respuesta</span>
+            <i class="bi bi-arrow-right flow-arrow"></i>
+            <span class="flow-step">💾 <code>sessionStorage</code></span>
+            <i class="bi bi-arrow-right flow-arrow"></i>
+            <span class="flow-step">📊 Redirect a dashboard</span>
+          </div>
+
+          <div class="alert alert-success mb-0">
+            <i class="bi bi-check2-circle"></i>
+            Todo esto ocurre en <strong>menos de 100 ms</strong> y en la consola
+            del backend ves cada paso con el <code>logger.middleware.js</code>.
+          </div>
+        </section>
+
+        <!-- PUERTOS -->
+        <section id="puertos" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-plug"></i> El caso 3000 vs 5500</h2>
+          <p>
+            En clase nos pasó esto y vale la pena contarlo porque es
+            <strong>súper común</strong> cuando se arranca con front+back.
+          </p>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <div class="card card-folder err shadow-sm h-100">
+                <div class="card-body">
+                  <h6><i class="bi bi-x-circle me-1"></i>Con Live Server (:5500)</h6>
+                  <p class="small mb-2">
+                    El front se sirve desde el 5500, el back está en el 3000.
+                    <strong>Son orígenes distintos</strong>.
+                  </p>
+                  <div class="code-block" style="font-size:.75rem">
+<span class="cm">// login.js antes</span>
+<span class="kw">await</span> <span class="fn">fetch</span>(<span class="st">'/usuarios/login'</span>);
+<span class="cm">// 👆 se resuelve a http://localhost:5500/usuarios/login</span>
+<span class="cm">// ❌ Live Server no tiene esa ruta → 405</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card card-folder ok shadow-sm h-100">
+                <div class="card-body">
+                  <h6><i class="bi bi-check-circle me-1"></i>Solución con <code>api.js</code></h6>
+                  <p class="small mb-2">
+                    Centralizamos la URL. Si detectamos que <strong>no</strong>
+                    estamos en el puerto del backend, apuntamos explícito al 3000.
+                  </p>
+                  <div class="code-block" style="font-size:.75rem">
+<span class="kw">const</span> <span class="vr">API_URL</span> =
+  <span class="vr">location</span>.<span class="vr">port</span> === <span class="st">'3000'</span>
+    ? <span class="st">'/usuarios'</span>
+    : <span class="st">'http://localhost:3000/usuarios'</span>;</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="analogy-card mb-0">
+            <span class="emoji">📞</span>
+            <strong>Analogía:</strong> es como marcar un número interno en una
+            oficina. Si estás adentro (mismo puerto), marcás <em>"123"</em> y
+            listo. Si llamás desde afuera, tenés que marcar
+            <em>"011-4555-1234"</em> completo.
+          </div>
+        </section>
+
+        <!-- API.JS -->
+        <section id="api-js" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-bridge"></i> api.js: el puente entre front y back</h2>
+          <p>
+            Todo el front hace sus llamadas a través de este archivo. Cambia en
+            <strong>un solo lugar</strong> y se actualiza en todos lados.
+          </p>
+
+          <pre class="tree mb-3" style="font-size:.85rem">
+<span class="comment">// public/js/api.js</span>
+<span class="kw" style="color:#569cd6">export const</span> <span style="color:#dcdcaa">api</span> = {
+  <span style="color:#9cdcfe">login</span>:      (email, pass) =&gt; <span style="color:#dcdcaa">request</span>(<span style="color:#ce9178">'POST'</span>,   <span style="color:#ce9178">`${API_URL}/login`</span>, { email, pass }),
+  <span style="color:#9cdcfe">listar</span>:     ()            =&gt; <span style="color:#dcdcaa">request</span>(<span style="color:#ce9178">'GET'</span>,    <span style="color:#ce9178">`${API_URL}`</span>),
+  <span style="color:#9cdcfe">crear</span>:      (u)           =&gt; <span style="color:#dcdcaa">request</span>(<span style="color:#ce9178">'POST'</span>,   <span style="color:#ce9178">`${API_URL}`</span>, u),
+  <span style="color:#9cdcfe">actualizar</span>: (id, datos)   =&gt; <span style="color:#dcdcaa">request</span>(<span style="color:#ce9178">'PUT'</span>,    <span style="color:#ce9178">`${API_URL}/${id}`</span>, datos),
+  <span style="color:#9cdcfe">eliminar</span>:   (id)          =&gt; <span style="color:#dcdcaa">request</span>(<span style="color:#ce9178">'DELETE'</span>, <span style="color:#ce9178">`${API_URL}/${id}`</span>)
+};</pre>
+
+          <p class="mb-2"><strong>Beneficios concretos:</strong></p>
+          <ul>
+            <li>Si cambia la URL del backend, se cambia <strong>en un solo archivo</strong>.</li>
+            <li>Los <code>fetch</code> con <code>try/catch</code> quedan encapsulados.</li>
+            <li>Es el primer paso hacia un <strong>cliente HTTP propio</strong>, como Axios.</li>
+            <li>Se importa igual desde <code>login.js</code> y <code>dashboard.js</code>.</li>
+          </ul>
+        </section>
+
+        <!-- TAKEAWAYS -->
+        <section id="takeaways" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-lightbulb"></i> Para llevar</h2>
+          <ol class="list-group list-group-numbered shadow-sm">
+            <li class="list-group-item">
+              <span class="step-num">1</span>
+              <strong>Express sirve el front</strong> con una sola línea:
+              <code>express.static('public')</code>.
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">2</span>
+              <strong>CORS</strong> es la regla del navegador que permite (o
+              bloquea) pedir datos entre orígenes distintos.
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">3</span>
+              <strong>sessionStorage</strong> = pizarrón de la clase (se borra al
+              cerrar). <strong>localStorage</strong> = cuaderno (queda).
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">4</span>
+              <strong>Monorepo</strong> es más simple para empezar. Cuando el
+              equipo crece, se separa.
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">5</span>
+              <strong>api.js</strong> centraliza todas las llamadas al backend.
+              Cambia en un lugar, funciona en todos.
+            </li>
+            <li class="list-group-item">
+              <span class="step-num">6</span>
+              <strong>Nunca guardes tokens en storage.</strong> Se leen desde
+              DevTools. La semana que viene, JWT + cookies.
+            </li>
+          </ol>
+        </section>
+
+        <!-- PRÓXIMO -->
+        <section id="proximo" class="mb-5">
+          <h2 class="h4 mb-3"><i class="bi bi-rocket-takeoff"></i> Próxima semana</h2>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="card card-folder h-100 shadow-sm">
+                <div class="card-body">
+                  <h6>🧩 Multi repo</h6>
+                  <p class="small mb-0">
+                    Separamos front y back en repos distintos. Vemos ventajas y
+                    cómo se comunican.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card card-folder ok h-100 shadow-sm">
+                <div class="card-body">
+                  <h6>🔐 JWT de verdad</h6>
+                  <p class="small mb-0">
+                    Login devuelve un token firmado. Rutas protegidas verifican
+                    antes de dejar pasar.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card card-folder warn h-100 shadow-sm">
+                <div class="card-body">
+                  <h6>🌍 Deploy</h6>
+                  <p class="small mb-0">
+                    Front en Vercel o Netlify, back en Render. El proyecto deja
+                    de vivir en <code>localhost</code>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-center">
+    <p class="mb-1">AW2 · Semana 2 · Del backend a la pantalla</p>
+    <small>Hecho con <i class="bi bi-heart-fill text-danger"></i> y mucho Express</small>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
